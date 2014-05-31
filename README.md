@@ -1,4 +1,4 @@
-## soapui-plueprint-plugin
+## soapui-blueprint-plugin
 
 - Allows you to import API-Blueprint files into SoapUI for testing (both .md and .ast)
 - Allows you to generate an API Blueprint file for any REST API defined in SoapUI
