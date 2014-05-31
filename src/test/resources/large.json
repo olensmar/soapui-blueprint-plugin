@@ -1,0 +1,72 @@
+{
+    "_version": "2.0",
+    "metadata": [],
+    "name": "Message of the Day API",
+    "description": "A simple [MOTD](http://en.wikipedia.org/wiki/Motd_(Unix)) API.\n\n",
+    "resourceGroups": [
+        {
+            "name": "",
+            "description": "",
+            "resources": [
+                {
+                    "name": "Message",
+                    "description": "This resource represents one particular message identified by its *id*.\n\n",
+                    "uriTemplate": "/messages/{id}",
+                    "model": {},
+                    "parameters": [],
+                    "actions": [
+                        {
+                            "name": "Retrieve Message",
+                            "description": "Retrieve a message by its *id*.\n\n",
+                            "method": "GET",
+                            "parameters": [],
+                            "examples": [
+                                {
+                                    "name": "",
+                                    "description": "",
+                                    "requests": [],
+                                    "responses": [
+                                        {
+                                            "name": "200",
+                                            "description": "",
+                                            "headers": [
+                                                {
+                                                    "name": "Content-Type",
+                                                    "value": "text/plain"
+                                                }
+                                            ],
+                                            "body": "Hello World!\n",
+                                            "schema": ""
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Delete Message",
+                            "description": "Delete a message. **Warning:** This action **permanently** removes the message from the database.\n\n",
+                            "method": "DELETE",
+                            "parameters": [],
+                            "examples": [
+                                {
+                                    "name": "",
+                                    "description": "",
+                                    "requests": [],
+                                    "responses": [
+                                        {
+                                            "name": "204",
+                                            "description": "",
+                                            "headers": [],
+                                            "body": "",
+                                            "schema": ""
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

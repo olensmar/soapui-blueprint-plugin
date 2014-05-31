@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:soapui-actions xmlns:tns="http://eviware.com/soapui/config">
+
+    <tns:action id="ImportBlueprintAction" actionClass="com.smartbear.soapui.blueprint.actions.ImportBlueprintAction"/>
+    <tns:action id="ExportBlueprintAction" actionClass="com.smartbear.soapui.blueprint.actions.ExportBlueprintAction"/>
+
+    <tns:actionGroup id="EnabledWsdlProjectActions">
+        <tns:actionMapping actionId="ImportBlueprintAction" position="AFTER" positionRef="AddWadlAction"/>
+        <tns:actionMapping actionId="SeperatorAction" position="BEFORE" positionRef="AddWadlAction"/>
+    </tns:actionGroup>
+
+    <tns:actionGroup id="RestServiceActions">
+        <tns:actionMapping actionId="ExportBlueprintAction" position="AFTER" positionRef="ExportWadlAction"/>
+        <tns:actionMapping actionId="SeperatorAction" position="BEFORE" positionRef="ExportBlueprintAction"/>
+    </tns:actionGroup>
+
+</tns:soapui-actions>
