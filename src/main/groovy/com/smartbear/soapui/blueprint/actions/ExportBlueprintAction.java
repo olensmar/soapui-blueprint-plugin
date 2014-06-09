@@ -1,7 +1,24 @@
+/**
+ *  Copyright 2014 SmartBear Software, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package com.smartbear.soapui.blueprint.actions;
 
 import com.eviware.soapui.impl.rest.RestService;
 import com.eviware.soapui.impl.settings.XmlBeansSettingsImpl;
+import com.eviware.soapui.plugins.ActionConfiguration;
 import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.action.support.AbstractSoapUIAction;
 import com.eviware.x.form.XFormDialog;
@@ -13,6 +30,7 @@ import com.smartbear.soapui.blueprint.BlueprintExporter;
 import java.io.File;
 import java.io.FileWriter;
 
+@ActionConfiguration( actionGroup = "RestServiceActions", afterAction = "ExportWadlAction", separatorBefore = true )
 public class ExportBlueprintAction extends AbstractSoapUIAction<RestService> {
     private static final String TARGET_PATH = Form.class.getName() + Form.FOLDER;
     private XFormDialog dialog;
@@ -31,8 +49,7 @@ public class ExportBlueprintAction extends AbstractSoapUIAction<RestService> {
             if (name.startsWith("/") || name.toLowerCase().startsWith("http"))
                 name = restService.getProject().getName() + " - " + name;
 
-            dialog.setValue(Form.TITLE, name);
-            dialog.setValue(Form.BASEURI, restService.getBasePath());
+            dialog.setValue(Form.NAME, name);
             dialog.setValue(Form.FOLDER, settings.getString(TARGET_PATH, ""));
         }
 
@@ -40,12 +57,12 @@ public class ExportBlueprintAction extends AbstractSoapUIAction<RestService> {
             try {
                 BlueprintExporter exporter = new BlueprintExporter(restService.getProject());
 
-                String blueprint = exporter.createBlueprint(dialog.getValue(Form.TITLE), restService);
-
+                String name = dialog.getValue(Form.NAME);
+                String blueprint = exporter.createBlueprint(name, restService);
 
                 String folder = dialog.getValue(Form.FOLDER);
 
-                File file = new File("");
+                File file = new File(folder, name + ".json" );
                 FileWriter writer = new FileWriter(file);
                 writer.write(blueprint);
                 writer.close();
@@ -66,10 +83,7 @@ public class ExportBlueprintAction extends AbstractSoapUIAction<RestService> {
         @AField(name = "Target Folder", description = "Where to save the API Blueprint", type = AField.AFieldType.FOLDER)
         public final static String FOLDER = "Target Folder";
 
-        @AField(name = "Title", description = "The API Title", type = AField.AFieldType.STRING)
-        public final static String TITLE = "Title";
-
-        @AField(name = "Base URI", description = "The API Blueprint baseUri", type = AField.AFieldType.STRING)
-        public final static String BASEURI = "Base URI";
+        @AField(name = "Name", description = "The API Name", type = AField.AFieldType.STRING)
+        public final static String NAME = "Name";
     }
 }

@@ -20,6 +20,7 @@ import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.impl.rest.RestService;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.impl.wsdl.support.PathUtils;
+import com.eviware.soapui.plugins.ActionConfiguration;
 import com.eviware.soapui.support.StringUtils;
 import com.eviware.soapui.support.UISupport;
 import com.eviware.soapui.support.action.support.AbstractSoapUIAction;
@@ -34,6 +35,7 @@ import com.eviware.x.form.support.AForm;
 import com.smartbear.soapui.blueprint.BlueprintImporter;
 
 import java.io.File;
+import java.net.URL;
 
 /**
  * Shows a simple dialog for importing an API Blueprint
@@ -41,6 +43,7 @@ import java.io.File;
  * @author Ole Lensmar
  */
 
+@ActionConfiguration( actionGroup = "EnabledWsdlProjectActions", afterAction = "AddWadlAction", separatorBefore = true )
 public class ImportBlueprintAction extends AbstractSoapUIAction<WsdlProject> {
     private XFormDialog dialog;
 
@@ -82,9 +85,13 @@ public class ImportBlueprintAction extends AbstractSoapUIAction<WsdlProject> {
                                 SoapUI.log("Importing API Blueprint from [" + finalExpUrl + "]");
                                 SoapUI.log("CWD:" + new File(".").getCanonicalPath());
 
-                                RestService restService = importer.importBlueprint(finalExpUrl);
-
+                                RestService restService = importer.importBlueprint(finalExpUrl, dialog.getValue( Form.DEFAULT_ENDPOINT ));
                                 UISupport.select(restService);
+
+                                if( !StringUtils.hasContent( restService.getName() )) {
+                                    String prompt = UISupport.prompt("Please name this API", "Import Blueprint", "My API");
+                                    restService.setName( prompt == null ? "My API" : prompt );
+                                }
 
                                 return restService;
                             } catch (Exception e) {
@@ -110,6 +117,8 @@ public class ImportBlueprintAction extends AbstractSoapUIAction<WsdlProject> {
 
         @AField(name = "Create Requests", description = "Create sample requests for imported methods", type = AFieldType.BOOLEAN)
         public final static String CREATE_REQUESTS = "Create Requests";
-    }
 
+        @AField(name = "Default Endpoint", description = "The default endpoint for this API, including its base path", type = AFieldType.STRING )
+        public final static String DEFAULT_ENDPOINT = "Default Endpoint";
+    }
 }
