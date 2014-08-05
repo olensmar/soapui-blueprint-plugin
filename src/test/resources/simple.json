@@ -1,0 +1,55 @@
+{
+    "_version": "1.0",
+    "ast": {
+        "_version": "2.0",
+        "metadata": [],
+        "name": "",
+        "description": "",
+        "resourceGroups": [
+            {
+                "name": "",
+                "description": "",
+                "resources": [
+                    {
+                        "name": "",
+                        "description": "",
+                        "uriTemplate": "/message",
+                        "model": {},
+                        "parameters": [],
+                        "actions": [
+                            {
+                                "name": "",
+                                "description": "",
+                                "method": "GET",
+                                "parameters": [],
+                                "examples": [
+                                    {
+                                        "name": "",
+                                        "description": "",
+                                        "requests": [],
+                                        "responses": [
+                                            {
+                                                "name": "200",
+                                                "description": "",
+                                                "headers": [
+                                                    {
+                                                        "name": "Content-Type",
+                                                        "value": "text/plain"
+                                                    }
+                                                ],
+                                                "body": "Hello World!\n",
+                                                "schema": ""
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "error": null,
+    "warnings": []
+}

@@ -17,12 +17,18 @@
 package com.smartbear.soapui.blueprint
 
 import com.eviware.soapui.impl.rest.*
+import com.eviware.soapui.impl.rest.mock.RestMockService
 import com.eviware.soapui.impl.rest.support.RestParameter
 import com.eviware.soapui.impl.rest.support.RestParamsPropertyHolder
 import com.eviware.soapui.impl.rest.support.RestUtils
 import com.eviware.soapui.impl.wsdl.WsdlProject
+import com.eviware.soapui.impl.wsdl.support.http.HttpClientSupport
 import com.eviware.soapui.support.StringUtils
 import groovy.json.JsonSlurper
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.entity.StringEntity
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * A simple API Blueprint importer
@@ -32,8 +38,10 @@ import groovy.json.JsonSlurper
 
 class BlueprintImporter {
 
+    private static Logger logger = LoggerFactory.getLogger(BlueprintImporter.class)
     private final WsdlProject project
     private boolean createSampleRequests
+    private RestMockService restMockService
 
     public BlueprintImporter(WsdlProject project) {
         this.project = project
@@ -42,9 +50,21 @@ class BlueprintImporter {
     public RestService importBlueprint(String url, String endpoint) {
 
         def slurper = new JsonSlurper()
-        def ast = slurper.parseText(new URL(url).text)
+        def blueprint = new URL(url).text
+        def ast = null
 
-        def service = createRestService(ast)
+        try {
+            ast = slurper.parseText(blueprint)
+        }
+        catch (Exception e) {
+            logger.info("Converting Blueprint [$blueprint]")
+            blueprint = convertBlueprintToAST(blueprint)
+            logger.info("Converted to [$blueprint]")
+
+            ast = slurper.parseText(blueprint).ast
+        }
+
+        def service = createRestService(ast, endpoint)
 
         ast.resourceGroups.each {
             it.resources.each {
@@ -79,6 +99,16 @@ class BlueprintImporter {
         ast.actions.each {
             addMethod(resource, it)
         }
+    }
+
+    def convertBlueprintToAST(String blueprint) {
+        def post = new HttpPost("https://api.apiblueprint.org/parser")
+        post.addHeader("Accept", "application/vnd.apiblueprint.parseresult.raw+json")
+        post.setEntity(new StringEntity(blueprint, "text/vnd.apiblueprint+markdown; version=1A", "utf-8"))
+        def response = HttpClientSupport.getHttpClient().execute(post);
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        response.entity.writeTo(out)
+        return out.toString("utf-8")
     }
 
     def extractParams( String path, RestParamsPropertyHolder params, ast )
@@ -132,9 +162,13 @@ class BlueprintImporter {
                 request.description = it.description.trim()
 
                 request.requestContent = it.body
+
                 def headers = request.requestHeaders
                 it.headers.each {
                     headers.add( it.name, it.value )
+
+                    if( it.name == "Content-Type")
+                        request.mediaType = it.value
                 }
 
                 request.requestHeaders = headers
@@ -151,18 +185,56 @@ class BlueprintImporter {
             }
         }
 
+        if (restMockService != null) {
+            def path = method.resource.getFullPath(true)
+            def params = method.overlayParams
+
+            params.each {
+                RestParameter p = it.value
+                if( p.style == RestParamsPropertyHolder.ParameterStyle.TEMPLATE )
+                {
+                    if( p.defaultValue != null && p.defaultValue.trim().length() > 0 )
+                        path = path.replaceAll( "\\{" + it.key + "\\}", p.defaultValue )
+                    else
+                        path = path.replaceAll( "\\{" + it.key + "\\}", it.key )
+                }
+            }
+
+            def mockAction = restMockService.addEmptyMockAction(method.method, path)
+
+            ast.examples.each {
+                it.responses.each {
+                    int statusCode = Integer.parseInt(it.name)
+                    def mockResponse = mockAction.addNewMockResponse("Response " + statusCode)
+
+                    it.headers.each {
+                        if (it.name.equals("Content-Type"))
+                            mockResponse.contentType = it.value
+                    }
+
+                    if( it.body != null )
+                        mockResponse.responseContent = it.body
+                }
+            }
+        }
+
+
         if (createSampleRequests && method.requestCount == 0)
             method.addNewRequest("Sample Request")
     }
 
-    private RestService createRestService(def bp) {
+    private RestService createRestService(def bp, def name) {
 
-        RestService restService = project.addNewInterface(bp.name, RestServiceFactory.REST_TYPE)
-        restService.description = bp.description.trim()
+        RestService restService = project.addNewInterface(bp.name == null ? name : bp.name, RestServiceFactory.REST_TYPE)
+        restService.description = bp.description?.trim()
         return restService
     }
 
     public void setCreateSampleRequests(boolean createSampleRequests) {
         this.createSampleRequests = createSampleRequests;
+    }
+
+    public void setRestMockService(RestMockService restMockService) {
+        this.restMockService = restMockService;
     }
 }

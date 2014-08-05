@@ -18,7 +18,8 @@ class BlueprintImporterTest extends GroovyTestCase {
         WsdlProject project = new WsdlProject();
         BlueprintImporter importer = new BlueprintImporter( project )
 
-        RestService service = importer.importBlueprint( new File( "src/test/resources/large.json").toURI().toURL().toString(),
+        RestService service = importer.importBlueprint(
+                    new File( "src/test/resources/large.json").toURI().toURL().toString(),
                     "http://www.test.com/basePath");
 
         assertNotNull( service )
@@ -58,4 +59,29 @@ class BlueprintImporterTest extends GroovyTestCase {
         assertNotNull( representation )
         assertEquals( 204, representation.status[0])
     }
+
+    public void testBlueprintConversion()
+    {
+        WsdlProject project = new WsdlProject();
+        BlueprintImporter importer = new BlueprintImporter( project )
+
+        RestService service = importer.importBlueprint(
+                new File( "src/test/resources/simple.blueprint").toURI().toURL().toString(),
+                "http://www.test.com/basePath");
+
+        assertTrue( service.getResources().size() == 1 )
+    }
+
+    public void testBlueprintConversion2()
+    {
+        WsdlProject project = new WsdlProject();
+        BlueprintImporter importer = new BlueprintImporter( project )
+
+        RestService service = importer.importBlueprint(
+                new File( "src/test/resources/resourcemodel.blueprint").toURI().toURL().toString(),
+                "http://www.test.com/basePath");
+
+        assertTrue( service.getResources().size() == 1 )
+    }
+
 }

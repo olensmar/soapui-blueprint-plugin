@@ -17,6 +17,7 @@
 package com.smartbear.soapui.blueprint.actions;
 
 import com.eviware.soapui.SoapUI;
+import com.eviware.soapui.analytics.Analytics;
 import com.eviware.soapui.impl.rest.RestService;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.impl.wsdl.support.PathUtils;
@@ -35,7 +36,6 @@ import com.eviware.x.form.support.AForm;
 import com.smartbear.soapui.blueprint.BlueprintImporter;
 
 import java.io.File;
-import java.net.URL;
 
 /**
  * Shows a simple dialog for importing an API Blueprint
@@ -74,34 +74,9 @@ public class ImportBlueprintAction extends AbstractSoapUIAction<WsdlProject> {
                         expUrl = new File(expUrl).toURI().toURL().toString();
 
                     XProgressDialog dlg = UISupport.getDialogs().createProgressDialog("Importing API", 0, "", false);
-                    final String finalExpUrl = expUrl;
-                    dlg.run(new Worker.WorkerAdapter() {
-                        public Object construct(XProgressMonitor monitor) {
+                    dlg.run(new BlueprintImporterWorker(expUrl, dialog.getValue( Form.DEFAULT_ENDPOINT), project, dialog));
 
-                            try {
-                                // create the importer and import!
-                                BlueprintImporter importer = new BlueprintImporter(project);
-                                importer.setCreateSampleRequests(dialog.getBooleanValue(Form.CREATE_REQUESTS));
-                                SoapUI.log("Importing API Blueprint from [" + finalExpUrl + "]");
-                                SoapUI.log("CWD:" + new File(".").getCanonicalPath());
-
-                                RestService restService = importer.importBlueprint(finalExpUrl, dialog.getValue( Form.DEFAULT_ENDPOINT ));
-                                UISupport.select(restService);
-
-                                if( !StringUtils.hasContent( restService.getName() )) {
-                                    String prompt = UISupport.prompt("Please name this API", "Import Blueprint", "My API");
-                                    restService.setName( prompt == null ? "My API" : prompt );
-                                }
-
-                                return restService;
-                            } catch (Exception e) {
-                                SoapUI.logError(e);
-                            }
-
-                            return null;
-                        }
-                    });
-
+                    Analytics.trackAction("ImportBlueprint");
                     break;
                 }
             } catch (Exception ex) {
@@ -115,10 +90,16 @@ public class ImportBlueprintAction extends AbstractSoapUIAction<WsdlProject> {
         @AField(name = "Import API Blueprint", description = "Location or URL of API Blueprint", type = AFieldType.FILE)
         public final static String BLUEPRINT_URL = "Import API Blueprint";
 
+        @AField(name = "Default Endpoint", description = "The default endpoint for this API, including its base path", type = AFieldType.STRING )
+        public final static String DEFAULT_ENDPOINT = "Default Endpoint";
+
         @AField(name = "Create Requests", description = "Create sample requests for imported methods", type = AFieldType.BOOLEAN)
         public final static String CREATE_REQUESTS = "Create Requests";
 
-        @AField(name = "Default Endpoint", description = "The default endpoint for this API, including its base path", type = AFieldType.STRING )
-        public final static String DEFAULT_ENDPOINT = "Default Endpoint";
+        @AField( name = "Generate MockService", description = "Generate a REST Mock Service from the API Blueprint definition", type = AField.AFieldType.BOOLEAN )
+        public final static String GENERATE_MOCK = "Generate MockService";
+
+        @AField( name = "Generate TestSuite", description = "Generate a skeleton TestSuite for the created REST API", type = AField.AFieldType.BOOLEAN )
+        public final static String GENERATE_TESTSUITE = "Generate TestSuite";
     }
 }
