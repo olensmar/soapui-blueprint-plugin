@@ -42,6 +42,7 @@ class BlueprintImporter {
     private final WsdlProject project
     private boolean createSampleRequests
     private RestMockService restMockService
+    private Map<String,RestResource> resourceMap = new HashMap<>();
 
     public BlueprintImporter(WsdlProject project) {
         this.project = project
@@ -88,13 +89,20 @@ class BlueprintImporter {
     }
 
     private def addResource(RestService service, ast) {
-        def resource = service.addNewResource(ast.name, ast.uriTemplate)
-        resource.description = ast.description.trim()
 
-        if (resource.name.length() == 0)
-            resource.name = resource.path
+        def resource = resourceMap.get( ast.uriTemplate )
+        if( resource == null )
+        {
+            resource = service.addNewResource(ast.name, ast.uriTemplate)
+            resource.description = ast.description.trim()
 
-        resource.path = extractParams( resource.path, resource.params, ast )
+            if (resource.name.length() == 0)
+                resource.name = resource.path
+
+            resource.path = extractParams( resource.path, resource.params, ast )
+
+            resourceMap.put( ast.uriTemplate, resource )
+        }
 
         ast.actions.each {
             addMethod(resource, it)

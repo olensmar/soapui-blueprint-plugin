@@ -62,7 +62,7 @@ public class ExportBlueprintAction extends AbstractSoapUIAction<RestService> {
 
                 String folder = dialog.getValue(Form.FOLDER);
 
-                File file = new File(folder, name + ".json" );
+                File file = new File(folder, name + ".blueprint" );
                 FileWriter writer = new FileWriter(file);
                 writer.write(blueprint);
                 writer.close();
@@ -78,7 +78,7 @@ public class ExportBlueprintAction extends AbstractSoapUIAction<RestService> {
         }
     }
 
-    @AForm(name = "Export API Blueprint", description = "Creates an API Blueprint for selected REST APIs in this project")
+    @AForm(name = "Export API Blueprint", description = "Creates an API Blueprint for selected REST API")
     public interface Form {
         @AField(name = "Target Folder", description = "Where to save the API Blueprint", type = AField.AFieldType.FOLDER)
         public final static String FOLDER = "Target Folder";

@@ -70,6 +70,7 @@ class BlueprintImporterTest extends GroovyTestCase {
                 "http://www.test.com/basePath");
 
         assertTrue( service.getResources().size() == 1 )
+        assertTrue( service.resourceList[0].getParams().size() == 1)
     }
 
     public void testBlueprintConversion2()
@@ -82,6 +83,19 @@ class BlueprintImporterTest extends GroovyTestCase {
                 "http://www.test.com/basePath");
 
         assertTrue( service.getResources().size() == 1 )
+    }
+
+    public void testTeslaBlueprint()
+    {
+        WsdlProject project = new WsdlProject();
+        BlueprintImporter importer = new BlueprintImporter( project )
+
+        RestService service = importer.importBlueprint(
+                new File( "src/test/resources/tesla.blueprint").toURI().toURL().toString(),
+                "http://www.test.com");
+        RestResource resource = service.getResourceByFullPath( "/login");
+        assertEquals( 2, resource.getRestMethodCount());
+
     }
 
 }

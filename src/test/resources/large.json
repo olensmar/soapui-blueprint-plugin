@@ -13,7 +13,21 @@
                     "description": "This resource represents one particular message identified by its *id*.\n\n",
                     "uriTemplate": "/messages/{id}",
                     "model": {},
-                    "parameters": [],
+                    "parameters": [
+                        {
+                            "name": "<name>",
+                            "description": "<description>",
+                            "type": "<type>",
+                            "required": "<required parameter flag>",
+                            "default": "<default value>",
+                            "example": "<example value>",
+                            "values": [
+                                {
+                                    "value": "<enum element>"
+                                }
+                            ]
+                        }
+                    ],
                     "actions": [
                         {
                             "name": "Retrieve Message",

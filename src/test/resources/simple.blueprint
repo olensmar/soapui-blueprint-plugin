@@ -1,4 +1,10 @@
-# GET /message
+# GET /message{?id}
+
++ Parameters
+
+    + id (number, `1`) ... An unique identifier of the message.
+        
 + Response 200 (text/plain)
     
         Hello World!
+        
