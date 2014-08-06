@@ -13,9 +13,28 @@
                     {
                         "name": "",
                         "description": "",
-                        "uriTemplate": "/message",
+                        "uriTemplate": "/message{?test}",
                         "model": {},
-                        "parameters": [],
+                        "parameters": [
+                            {
+                                "name": "test",
+                                "description": "description",
+                                "type": "string",
+                                "required": true,
+                                "default": "",
+                                "example": "test",
+                                "values": [
+                                    {
+                                        "value": "value1"
+                                    },
+                                    {
+                                        "value": "value2"
+                                    },
+                                    {
+                                        "value": "value3"
+                                    }
+                                ]
+                            }],
                         "actions": [
                             {
                                 "name": "",

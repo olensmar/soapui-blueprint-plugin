@@ -148,6 +148,17 @@ class BlueprintImporter {
             param.required = it.required
             param.defaultValue = it.default
             param.description = it.description.trim()
+
+            if( it.values != null )
+            {
+               def list = []
+
+               it.values.each {
+                  list.add( String.valueOf(it.value) )
+               }
+
+               param.options = list.toArray( new String[list.size()])
+            }
         }
 
         return path

@@ -36,6 +36,7 @@ class BlueprintImporterTest extends GroovyTestCase {
         assertEquals( "This resource represents one particular message identified by its *id*.", resource.description )
 
         RestParamProperty param = resource.getParams().getProperty( "id" )
+        assertEquals( 3, param.getOptions().length )
         assertEquals( RestParamsPropertyHolder.ParameterStyle.TEMPLATE, param.style )
 
         assertEquals( 2, resource.getRestMethodCount())
