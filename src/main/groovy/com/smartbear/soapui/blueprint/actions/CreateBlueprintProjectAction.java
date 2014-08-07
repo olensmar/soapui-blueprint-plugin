@@ -57,6 +57,9 @@ public class CreateBlueprintProjectAction extends AbstractSoapUIAction<Workspace
                 String url = dialog.getValue(Form.BLUEPRINT_URL).trim();
                 if (StringUtils.hasContent(url)) {
                     project = workspace.createProject(dialog.getValue(Form.PROJECT_NAME));
+                    if( project == null )
+                        break;
+
                     String expUrl = PathUtils.expandPath(url, project);
 
                     // if this is a file - convert it to a file URL

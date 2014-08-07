@@ -17,6 +17,7 @@ class BlueprintImporterTest extends GroovyTestCase {
     {
         WsdlProject project = new WsdlProject();
         BlueprintImporter importer = new BlueprintImporter( project )
+        importer.setRestMockService( project.addNewRestMockService( "RestMock"))
 
         RestService service = importer.importBlueprint(
                     new File( "src/test/resources/large.json").toURI().toURL().toString(),
@@ -90,8 +91,10 @@ class BlueprintImporterTest extends GroovyTestCase {
     {
         WsdlProject project = new WsdlProject();
         BlueprintImporter importer = new BlueprintImporter( project )
+       importer.setRestMockService( project.addNewRestMockService( "RestMock"))
 
-        RestService service = importer.importBlueprint(
+
+       RestService service = importer.importBlueprint(
                 new File( "src/test/resources/tesla.blueprint").toURI().toURL().toString(),
                 "http://www.test.com");
         RestResource resource = service.getResourceByFullPath( "/login");

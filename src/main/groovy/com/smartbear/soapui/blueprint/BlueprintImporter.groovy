@@ -99,7 +99,7 @@ class BlueprintImporter {
             if (resource.name.length() == 0)
                 resource.name = resource.path
 
-            resource.path = extractParams( resource.path, resource.params, ast )
+            resource.path = extractParams( resource.path, resource.params, null, ast )
 
             resourceMap.put( ast.uriTemplate, resource )
         }
@@ -119,7 +119,7 @@ class BlueprintImporter {
         return out.toString("utf-8")
     }
 
-    def extractParams( String path, RestParamsPropertyHolder params, ast )
+    def extractParams( String path, RestParamsPropertyHolder params, RestParamsPropertyHolder parentParams, ast )
     {
         if( path != null ) {
             RestUtils.extractTemplateParams(path).each {
@@ -142,8 +142,13 @@ class BlueprintImporter {
         {
             RestParameter param = params.getProperty( it.name )
 
-            if( param == null )
-                param = params.addProperty( it.name )
+            if( param == null ) {
+               if( parentParams != null )
+                  param = parentParams.get( it.name )
+
+               if( param == null )
+                  param = params.addProperty(it.name)
+            }
 
             param.required = it.required
             param.defaultValue = it.default
@@ -172,7 +177,7 @@ class BlueprintImporter {
         if (method.name.length() == 0)
             method.name = ast.method + " Action"
 
-        extractParams( null, method.params, ast )
+        extractParams( null, method.params, resource.params,  ast )
 
         ast.examples.each {
 
@@ -236,7 +241,6 @@ class BlueprintImporter {
                 }
             }
         }
-
 
         if (createSampleRequests && method.requestCount == 0)
             method.addNewRequest("Sample Request")
